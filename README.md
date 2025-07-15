@@ -1,16 +1,71 @@
-<<<<<<< HEAD
-# React + Vite
+# Movie Discovery Web App
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+A modern, interactive web application to **discover movies and TV shows, browse trending titles, and watch official trailers**—all powered by [The Movie Database (TMDB)](https://www.themoviedb.org/) and YouTube APIs. Built for lightning-fast, responsive browsing and a cinematic experience inspired by real-world streaming platforms.
 
-Currently, two official plugins are available:
+## ⭐ Features
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+- **Browse Latest Trailers**  
+  Surf real-time movie trailers from multiple categories (Popular, Streaming, On TV, For Rent, In Theaters), with authentic YouTube thumbnails and an in-app video player.
+- **Trending & Categories Toggle**  
+  Instantly switch between categories or trending collections—animated sliding pill toggles just like leading streaming UIs.
+- **Personalized Filtering**  
+  Filter content by mood and runtime, discovering recommendations tailored to your current vibe.
+- **Search & Recommendation System**  
+  Fast, debounced search with Appwrite storing your recent searches; the app surfaces personalized trending picks based on your behavior.
+- **Responsive & Polished UI**  
+  Built with React, Tailwind CSS, and Vite for fast, smooth, and accessible browsing on all devices.
+- **Authentication and Cloud Backend**  
+  Uses Appwrite for storing per-user search history and integrating smart, privacy-first trending sections.
 
-## Expanding the ESLint configuration
+## 🛠 Tech Stack
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
-=======
-# moviesHunt
->>>>>>> 4f9614d68ad30d3bbfd851aec4dbc084693ad2be
+| Area           | Technologies & Tools                  |
+|----------------|--------------------------------------|
+| Frontend       | React, Tailwind CSS, Vite, JavaScript (JSX/TS) |
+| Backend/Cloud  | Appwrite (cloud backend/storage), TMDB API, YouTube Embed |
+| Data/State     | REST APIs, React Hooks, Context, npm ecosystem |
+| Utilities      | Git, VS Code, Postman                |
+
+## 🚀 Getting Started
+
+1. **Clone the repository**
+    ```
+    git clone https://github.com/Rohit-21-03/moviesHunt.git
+    cd movie-discovery-app
+    ```
+
+2. **Install dependencies**
+    ```
+    npm install react react-dom react-router-dom axios appwrite tailwindcss postcss autoprefixer
+    npm install -D vite eslint prettier @testing-library/react @testing-library/jest-dom
+    npm install @reduxjs/toolkit react-redux
+    npm install @heroicons/react clsx dotenv
+    ```
+
+3. **Configure Environment Variables**
+    - Copy `.env.example` to `.env.local`.
+    - Add your [TMDB API Key](https://developer.themoviedb.org/docs/getting-started) (get one for free!):
+      ```
+      VITE_TMDB_API_KEY=your_tmdb_api_key_here
+      ```
+    - Configure Appwrite instance if used.
+
+4. **Run the app locally**
+    ```
+    npm run dev
+    ```
+
+5. **Go to**
+    ```
+    http://localhost:5173/
+    ```
+
+## 🧩 Main Components
+
+- `LatestTrailers`: TMDB-style row of official YouTube trailers, with category toggle, smooth scroll, and instant playback.
+- `Trending`: Shows trending and recommended films based on stored search history.
+- `Preference`: Mood and runtime filter with animated toggle and styling.
+- `MovieCard`: Consistent poster, rating, language/year, and responsive grid.
+- `Appwrite`: Used to persist/search user data and enable personalized trending.
+
+## 📝 Example Usage
