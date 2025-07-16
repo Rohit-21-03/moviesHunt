@@ -3,7 +3,11 @@ import Search from "./components/Search.jsx";
 import Spinner from "./components/Spinner.jsx";
 import MovieCard from "./components/MovieCard.jsx";
 import { useDebounce } from "react-use";
-import { updateSearchCount } from "./appwrite.js";
+import {
+  updateSearchCount,
+  getTrendingMovies,
+  getRandomMoviesByMood,
+} from "./appwrite.js";
 import Preference from "./components/Preference.jsx";
 import Trending from "./components/Trending.jsx";
 import LatestTrailer from "./components/LatestTrailer.jsx";
@@ -52,6 +56,7 @@ const App = () => {
   const [availableTime, setAvailableTime] = useState(90);
   const [searchHistory, setSearchHistory] = useState([]);
   const [genres, setGenres] = useState([]);
+  const [forYouRefreshKey, setForYouRefreshKey] = useState(0);
 
   useDebounce(() => setDebouncedSearchTerm(searchTerm), 500, [searchTerm]);
 
@@ -91,12 +96,10 @@ const App = () => {
       const genresToSearch = (moodGenreMap[selectedMood] || [])
         .map(getGenreIdByName)
         .filter(Boolean);
-
       const genreQuery =
         genresToSearch.length > 0
           ? `&with_genres=${genresToSearch.join(",")}`
           : "";
-
       const runtimeQuery = `&with_runtime.lte=${availableTime}`;
       endpoint = `${API_BASE_URL}/discover/movie?sort_by=popularity.desc${genreQuery}${runtimeQuery}`;
     }
@@ -112,6 +115,7 @@ const App = () => {
           const updated = [...prev, query];
           return updated.slice(-10);
         });
+        setForYouRefreshKey((k) => k + 1);
       }
     } catch {
       setErrorMessage("Error fetching movies. Please try again later.");
@@ -122,14 +126,37 @@ const App = () => {
   };
 
   const fetchForYouMovies = async () => {
-    if (searchHistory.length === 0) return [];
-    const lastQuery = searchHistory[searchHistory.length - 1];
-    const response = await fetch(
-      `${API_BASE_URL}/search/movie?query=${encodeURIComponent(lastQuery)}`,
-      API_OPTIONS
-    );
-    const data = await response.json();
-    return data.results || [];
+    const personalized = await getTrendingMovies();
+    if (personalized?.length > 0) {
+      return personalized
+        .slice(0, 6)
+        .map((movie) => ({
+          id: movie.movie_id,
+          title: movie.title,
+          poster_path: movie.poster_url.replace(
+            "https://image.tmdb.org/t/p/w500",
+            ""
+          ),
+          vote_average: movie.vote_average,
+          original_language: movie.original_language,
+          release_date: movie.release_date,
+        }));
+    } else {
+      const random = await getRandomMoviesByMood();
+      return random
+        .slice(0, 6)
+        .map((movie) => ({
+          id: movie.id,
+          title: movie.title,
+          poster_path: movie.poster_url.replace(
+            "https://image.tmdb.org/t/p/w500",
+            ""
+          ),
+          vote_average: movie.vote_average,
+          original_language: movie.original_language,
+          release_date: movie.release_date,
+        }));
+    }
   };
 
   const latestMovieId = movieList.length > 0 ? movieList[0].id : null;
@@ -157,7 +184,10 @@ const App = () => {
             Without the Hassle
           </h1>
         </header>
-        <Trending fetchForYouMovies={fetchForYouMovies} />
+        <Trending
+          fetchForYouMovies={fetchForYouMovies}
+          forYouRefreshKey={forYouRefreshKey}
+        />
         {latestMovieId && <LatestTrailer movieId={latestMovieId} />}
         <Search searchTerm={searchTerm} setSearchTerm={setSearchTerm} />
         <div className="flex items-center justify-between mb-4 mt-10 px-2">
@@ -174,7 +204,14 @@ const App = () => {
         </div>
         <section className="all-movies">
           {isLoading ? (
-            <Spinner />
+            <ul className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-6">
+              {[...Array(8)].map((_, idx) => (
+                <li
+                  key={idx}
+                  className="rounded-xl bg-gray-800 animate-pulse h-80"
+                ></li>
+              ))}
+            </ul>
           ) : errorMessage ? (
             <p className="text-red-500">{errorMessage}</p>
           ) : (
