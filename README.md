@@ -58,8 +58,11 @@ A modern, interactive web application to **discover movies and TV shows, browse 
 5. **Go to**
     ```
     http://localhost:5173/
+    https://movieshunt-delta.vercel.app/
     ```
 
+   ⚠️ _If you're accessing the deployed site from **India**, and movies/trailers aren't loading, it's due to TMDB API blocks by certain Indian ISPs. Please use a VPN like [Cloudflare Warp](https://1.1.1.1/) to access the full functionality._
+      
 ## 🧩 Main Components
 
 - `LatestTrailers`: TMDB-style row of official YouTube trailers, with category toggle, smooth scroll, and instant playback.
