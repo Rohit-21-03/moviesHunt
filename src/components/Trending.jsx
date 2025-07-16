@@ -9,14 +9,13 @@ const API_OPTIONS = {
   },
 };
 
-const Trending = ({ fetchForYouMovies }) => {
+const Trending = ({ fetchForYouMovies, forYouRefreshKey }) => {
   const [activeTab, setActiveTab] = useState("day");
   const [movies, setMovies] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
 
-  // Use a ref to persist the array of refs
   const tabRefs = useRef([React.createRef(), React.createRef(), React.createRef()]);
-  const tabKeys = ["day", "week", "For You"];
+  const tabKeys = ["day", "week", "foryou"];
   const [sliderStyle, setSliderStyle] = useState({});
 
   useEffect(() => {
@@ -47,14 +46,19 @@ const Trending = ({ fetchForYouMovies }) => {
             API_OPTIONS
           );
           const data = await response.json();
-          setMovies(data.results || []);
+          setMovies((data.results || []).slice(0, 6).map((movie) => ({
+            ...movie,
+            vote_average: movie.vote_average,
+            original_language: movie.original_language,
+            release_date: movie.release_date,
+          })));
         }
       } finally {
         setIsLoading(false);
       }
     };
     fetchMovies();
-  }, [activeTab, fetchForYouMovies]);
+  }, [activeTab, fetchForYouMovies, forYouRefreshKey]);
 
   return (
     <section className="my-10">
@@ -99,18 +103,18 @@ const Trending = ({ fetchForYouMovies }) => {
         </div>
       </div>
       {isLoading ? (
-        <div className="flex justify-center py-10 text-white/80">Loading...</div>
+        <ul className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-6">
+          {[...Array(6)].map((_, idx) => (
+            <li
+              key={idx}
+              className="rounded-xl bg-gray-800 animate-pulse h-80"
+            ></li>
+          ))}
+        </ul>
       ) : (
-        <div className="flex overflow-x-auto gap-6 pb-3 hide-scrollbar">
+        <ul className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-6">
           {movies.map((movie) => (
-            <div
-              key={movie.id}
-              className="flex-shrink-0 w-36 md:w-44 bg-white/10 backdrop-blur-md rounded-2xl p-2 shadow-lg hover:scale-105 transition-all"
-              style={{
-                border: "1px solid rgba(255,255,255,0.08)",
-                boxShadow: "0 4px 24px 0 rgba(80,80,180,0.12)",
-              }}
-            >
+            <li key={movie.id} className="rounded-xl bg-white/10 p-2 shadow-lg">
               <img
                 src={
                   movie.poster_path
@@ -120,12 +124,29 @@ const Trending = ({ fetchForYouMovies }) => {
                 alt={movie.title}
                 className="w-full h-52 object-cover rounded-xl mb-2"
               />
-              <span className="text-sm font-semibold text-center text-white block truncate">
-                {movie.title}
-              </span>
-            </div>
+              <div className="p-2">
+                <span className="font-semibold text-white block truncate">
+                  {movie.title}
+                </span>
+                <div className="flex justify-between text-xs text-gray-300 mt-1">
+                  <span>
+                    {movie.vote_average ? movie.vote_average.toFixed(1) : "N/A"} ⭐
+                  </span>
+                  <span>
+                    {movie.original_language
+                      ? movie.original_language.toUpperCase()
+                      : "N/A"}
+                  </span>
+                  <span>
+                    {movie.release_date
+                      ? new Date(movie.release_date).getFullYear()
+                      : "N/A"}
+                  </span>
+                </div>
+              </div>
+            </li>
           ))}
-        </div>
+        </ul>
       )}
     </section>
   );
